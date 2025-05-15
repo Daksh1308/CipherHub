@@ -1,93 +1,327 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>CipherHub: Caesar Cipher</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CipherHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .input-output-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1.5rem;
+        }
+        .input-output-group label {
+            margin-bottom: 0.5rem;
+            color: #e5e7eb; /* gray-200 */
+            font-weight: 600;
+        }
+        .input-output-group textarea {
+            padding: 1rem;
+            border-radius: 0.375rem; /* rounded-md */
+            border: 1px solid #374151; /* gray-700 */
+            background-color: #1f2937; /* gray-800 */
+            color: #f9fafb; /* gray-50 */
+            font-size: 1rem;
+            line-height: 1.5rem;
+            resize: none;
+            height: 160px; /* Increased height for better visibility */
+        }
+        .input-output-group textarea:focus {
+            outline: none;
+            border-color: #6b7280; /* gray-600 */
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.15); /* focus-ring */
+        }
+        .controls-group {
+            display: grid;
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .control-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .control-item label {
+            margin-bottom: 0.5rem;
+            color: #e5e7eb; /* gray-200 */
+            font-weight: 600;
+        }
+        .control-item input, .control-item select {
+            padding: 0.75rem;
+            border-radius: 0.375rem; /* rounded-md */
+            border: 1px solid #374151; /* gray-700 */
+            background-color: #1f2937; /* gray-800 */
+            color: #f9fafb; /* gray-50 */
+            font-size: 1rem;
+            line-height: 1.5rem;
+        }
+        .control-item input:focus, .control-item select:focus {
+            outline: none;
+            border-color: #6b7280; /* gray-600 */
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.15); /* focus-ring */
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+        }
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #e5e7eb;
+        }
+        .radio-group input[type="radio"] {
+            appearance: none;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            border: 1px solid #374151; /* gray-700 */
+            background-color: #1f2937; /* gray-800 */
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .radio-group input[type="radio"]:checked {
+            background-color: #6b7280; /* gray-600 */
+            border-color: #6b7280;
+        }
+        .radio-group input[type="radio"]:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.15); /* focus-ring */
+        }
+
+        button[type="submit"] {
+            padding: 1rem 2rem;
+            border-radius: 0.375rem; /* rounded-md */
+            background-color: #4caf50; /* green-500 */
+            color: #fff;
+            font-size: 1.25rem;
+            line-height: 1.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border: none;
+            width: fit-content;
+        }
+        button[type="submit"]:hover {
+            background-color: #45a049; /* green-700 */
+        }
+        button[type="submit"]:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3); /* focus-ring */
+        }
+
+        #output-text {
+            padding: 1rem;
+            border-radius: 0.375rem; /* rounded-md */
+            border: 1px solid #374151; /* gray-700 */
+            background-color: #1f2937; /* gray-800 */
+            color: #f9fafb; /* gray-50 */
+            font-size: 1rem;
+            line-height: 1.5rem;
+            white-space: pre-wrap;
+            height: auto;
+            min-height: 160px;
+        }
+
+        @media (min-width: 768px) {
+            .controls-group {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (min-width: 1024px) {
+            .controls-group {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+    </style>
 </head>
-
-<body>
-    <div class="container">
-        <div id="heading-container">
-            <h1>CipherHub: Caesar Cipher Tool</h1>
-        </div>
-        <div id="main-container">
-            <div class="box">
-                <div class="heading">
-                    <h2>Controls</h2>
+<body class="bg-gray-900 p-6">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-white mb-8 text-center">CipherHub</h1>
+        <form id="controls" class="bg-gray-800 p-6 rounded-lg shadow-md">
+            <div class="input-output-group">
+                <label for="input-text">Plaintext</label>
+                <textarea id="input-text" placeholder="Enter text to encode/decode"></textarea>
+            </div>
+            <div class="input-output-group">
+                <label for="output-text">Ciphertext</label>
+                <div id="output-text"></div>
+            </div>
+            <div class="controls-group">
+                <div class="control-item">
+                    <label for="shift-input">Shift Value</label>
+                    <input type="number" id="shift-input" value="3">
                 </div>
-                <form id="controls">
-                    <div class="row">
-                        <div>
-                            <input type="radio" name="code" id="encrypt" value="encrypt" checked="checked" />
-                            <label for="encrypt">Encrypt</label>
-                        </div>
-                        <div>
-                            <input type="radio" name="code" id="decrypt" value="decrypt" />
-                            <label for="decrypt">Decrypt</label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div>
-                            <label for="shift-input">
-                                <span>Shift Value:</span>
-                            </label>
-                            <input type="text" name="shift" id="shift-input" maxlength="4" size="4" value="3" />
-                        </div>
-                        <div>
-                            <label for="mod-input">
-                                <span>Modulo:</span>
-                            </label>
-                            <input type="text" name="mod" id="mod-input" maxlength="4" size="4" value="36" />
-                        </div>
-                    </div>
-                    <div class="column">
-                        <label for="alphabet-input">
-                            <span>Alphabet:</span>
+                <div class="control-item">
+                    <label for="mod-input">Modulo</label>
+                    <input type="number" id="mod-input" value="26">
+                </div>
+                <div class="control-item">
+                    <label for="alphabet-input">Alphabet</label>
+                    <input type="text" id="alphabet-input" value="abcdefghijklmnopqrstuvwxyz">
+                </div>
+                <div class="control-item">
+                    <label>Letter Case</label>
+                    <select id="letter-case">
+                        <option value="1">Preserve</option>
+                        <option value="2">Lower</option>
+                        <option value="3">Upper</option>
+                    </select>
+                </div>
+                <div class="control-item">
+                    <label>Foreign Chars</label>
+                    <label class="radio-group">
+                        <input type="radio" name="foreign-chars" value="0" checked>
+                        <span>Preserve</span>
+                    </label>
+                    <label class="radio-group">
+                        <input type="radio" name="foreign-chars" value="1">
+                        <span>Remove</span>
+                    </label>
+                </div>
+                 <div class="control-item">
+                    <label>Encode/Decode</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="code" value="encode" checked>
+                            <span>Encode</span>
                         </label>
-                        <input type="text" name="alphabet" id="alphabet-input"
-                            value="abcdefghijklmnopqrstuvwxyz0123456789" />
+                        <label>
+                            <input type="radio" name="code" value="decode">
+                            <span>Decode</span>
+                        </label>
                     </div>
-                    <div class="row">
-                        <div>
-                            <label for="letter-case">
-                                <div>Letter Case:</div>
-                            </label>
-                            <select name="letter-case" id="letter-case">
-                                <option value="1">Maintain Case</option>
-                                <option value="2">Lower Case</option>
-                                <option value="3">Upper Case</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="foreign-chars">
-                                <div>Foreign Characters:</div>
-                            </label>
-                            <select name="foreign-chars" id="foreign-chars">
-                                <option value="1">Remove</option>
-                                <option value="2">Ignore</option>
-                            </select>
-                        </div>
-                    </div>
-                    <input type="submit" name="submit" id="submit" value="Process" />
-                </form>
-            </div>
-            <div class="box">
-                <div class="heading">
-                    <h2 id="heading-input">Input Text</h2>
                 </div>
-                <textarea placeholder="Enter your text here..." rows="10" id="input-text"></textarea>
-                <p id="status"></p>
             </div>
-            <div class="box">
-                <div class="heading">
-                    <h2 id="heading-output">Output Text</h2>
-                </div>
-                <textarea readonly placeholder="The result will appear here..." rows="10" id="output-text"></textarea>
-            </div>
-        </div>
+            <button type="submit" class="w-full sm:w-auto">Process</button>
+        </form>
     </div>
-    <script src="cipherhub.js"></script>
-</body>
+    <script>
+        // Get elements from the DOM
+        const form = document.getElementById("controls");
+        const hInput = document.querySelector("#heading-input");
+        const hOutput = document.querySelector("#heading-output");
+        const selectEncodeOrDecode = document.getElementsByName("code");
+        const inputText = document.getElementById("input-text");
+        const outputText = document.getElementById("output-text");
+        const shiftKeyInput = document.getElementById("shift-input");
+        const modulo = document.getElementById("mod-input");
+        const alphabet = document.getElementById("alphabet-input");
+        const letterCase = document.getElementById("letter-case");
+        const foreignChars = document.getElementsByName("foreign-chars");
 
+        // Change headings and clear fields based on encoding or decoding
+        selectEncodeOrDecode.forEach((option) => {
+            option.addEventListener("click", () => {
+                const isEncode = option.value === "encode";
+                hInput.textContent = isEncode ? "Plaintext" : "Ciphertext";
+                hOutput.textContent = isEncode ? "Ciphertext" : "Plaintext";
+                inputText.value = "";
+                outputText.textContent = "";
+
+                // Auto-change shift value to negative when switching to decode
+                if (!isEncode) {
+                    const currentShiftValue = parseInt(shiftKeyInput.value, 10) || 0;
+                    shiftKeyInput.value = -currentShiftValue;
+                } else {
+                    const currentShiftValue = parseInt(shiftKeyInput.value, 10) || 0;
+                    if (currentShiftValue < 0)
+                        shiftKeyInput.value = -currentShiftValue;
+                }
+            });
+        });
+
+        // Perform Caesar Cipher on form submission
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            // Retrieve input values
+            const inputTextValue = inputText.value;
+            const selectedOption = Array.from(selectEncodeOrDecode).find((option) => option.checked)?.value;
+            const shiftValue = parseInt(shiftKeyInput.value, 10) || 0;
+            const moduloValue = parseInt(modulo.value, 10) || 26; // Default to 26 (English alphabet)
+            const alphabetValue = alphabet.value || "abcdefghijklmnopqrstuvwxyz";
+            const letterCaseValue = parseInt(letterCase.value, 10);
+            let shouldRemoveForeignChars = false;
+            foreignChars.forEach(radio => {
+                if (radio.checked && radio.value === "1") {
+                    shouldRemoveForeignChars = true;
+                }
+            });
+
+
+            console.log("Input Values:", {
+                mode: selectedOption,
+                text: inputTextValue,
+                shift: shiftValue,
+                modulo: moduloValue,
+                alphabet: alphabetValue,
+                removeForeign: shouldRemoveForeignChars,
+                letterCase: letterCaseValue,
+            });
+
+            // Validate input
+            if (!inputTextValue || isNaN(shiftValue) || isNaN(moduloValue)) {
+                alert("Please provide valid input text, shift value, and modulus.");
+                return;
+            }
+
+            /**
+             * Caesar Cipher Implementation
+             * @param {string} mode - Either "encode" or "decode".
+             * @param {string} text - Input text to process.
+             * @param {number} shift - Shift value for the cipher.
+             * @param {number} mod - Modulus value for wrapping around.
+             * @param {string} charset - Character set to use.
+             * @param {boolean} removeForeign - Whether to remove non-alphanumeric characters.
+             * @returns {string} Processed text.
+             */
+            function caesarCipher(mode, text, shift, mod, charset, removeForeign) {
+                if (mode === "decode") {
+                    shift = -shift;
+                    console.log("Decoding, new shift:", shift); // Log the shift value during decoding
+                }
+                if (removeForeign) text = text.replace(/[^a-zA-Z0-9 ]/g, "");
+                const lowerCharset = charset.toLowerCase();
+                return Array.from(text).map((char) => {
+                    const index = lowerCharset.indexOf(char.toLowerCase());
+                    if (index === -1) return char; // Skip characters not in the charset
+                    let newIndex = (index + shift) % mod;
+                    if (newIndex < 0) newIndex += mod;
+                    const newChar = lowerCharset[newIndex];
+                    return char === char.toLowerCase() ? newChar : newChar.toUpperCase();
+                }).join("");
+            }
+
+            // Generate cipher output
+            let cipherOutput = caesarCipher(
+                selectedOption,
+                inputTextValue,
+                shiftValue,
+                moduloValue,
+                alphabetValue,
+                shouldRemoveForeignChars
+            );
+
+            console.log("Cipher Output before case:", cipherOutput);
+
+            // Apply letter casing if specified
+            if (letterCaseValue === 2) cipherOutput = cipherOutput.toLowerCase();
+            else if (letterCaseValue === 3) cipherOutput = cipherOutput.toUpperCase();
+
+            console.log("Final Cipher Output:", cipherOutput);
+
+            // Display the output
+            outputText.textContent = cipherOutput;
+        });
+    </script>
+</body>
 </html>
