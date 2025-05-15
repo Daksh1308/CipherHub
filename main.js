@@ -5,7 +5,7 @@ const hOutput = document.querySelector("#heading-output");
 const selectEncodeOrDecode = document.getElementsByName("code");
 const inputText = document.getElementById("input-text");
 const outputText = document.getElementById("output-text");
-const shiftKey = document.getElementById("shift-input");
+const shiftKeyInput = document.getElementById("shift-input"); // Changed to shiftKeyInput
 const modulo = document.getElementById("mod-input");
 const alphabet = document.getElementById("alphabet-input");
 const letterCase = document.getElementById("letter-case");
@@ -19,6 +19,16 @@ selectEncodeOrDecode.forEach((option) => {
         hOutput.textContent = isEncode ? "Ciphertext" : "Plaintext";
         inputText.value = "";
         outputText.textContent = "";
+
+        // Auto-change shift value to negative when switching to decode
+        if (!isEncode) {
+            const currentShiftValue = parseInt(shiftKeyInput.value, 10) || 0;
+            shiftKeyInput.value = -currentShiftValue;
+        } else {
+            const currentShiftValue = parseInt(shiftKeyInput.value, 10) || 0;
+            if (currentShiftValue < 0)
+                shiftKeyInput.value = -currentShiftValue;
+        }
     });
 });
 
@@ -29,11 +39,21 @@ form.addEventListener("submit", (event) => {
     // Retrieve input values
     const inputTextValue = inputText.value;
     const selectedOption = Array.from(selectEncodeOrDecode).find((option) => option.checked)?.value;
-    const shiftValue = parseInt(shiftKey.value, 10) || 0;
+    const shiftValue = parseInt(shiftKeyInput.value, 10) || 0; // Use shiftKeyInput
     const moduloValue = parseInt(modulo.value, 10) || 26; // Default to 26 (English alphabet)
     const alphabetValue = alphabet.value || "abcdefghijklmnopqrstuvwxyz0123456789";
     const letterCaseValue = parseInt(letterCase.value, 10);
-    const foreignCharsValue = parseInt(foreignChars.value, 10);
+    const shouldRemoveForeignChars = foreignChars.checked; // Assuming foreignChars is a checkbox
+
+    console.log("Input Values:", {
+        mode: selectedOption,
+        text: inputTextValue,
+        shift: shiftValue,
+        modulo: moduloValue,
+        alphabet: alphabetValue,
+        removeForeign: shouldRemoveForeignChars,
+        letterCase: letterCaseValue,
+    });
 
     // Validate input
     if (!inputTextValue || isNaN(shiftValue) || isNaN(moduloValue)) {
@@ -52,7 +72,10 @@ form.addEventListener("submit", (event) => {
      * @returns {string} Processed text.
      */
     function caesarCipher(mode, text, shift, mod, charset, removeForeign) {
-        if (mode === "decode") shift = -shift;
+        if (mode === "decode") {
+            shift = -shift;
+            console.log("Decoding, new shift:", shift); // Log the shift value during decoding
+        }
         if (removeForeign) text = text.replace(/[^a-zA-Z0-9 ]/g, "");
         const lowerCharset = charset.toLowerCase();
         return Array.from(text).map((char) => {
@@ -60,9 +83,8 @@ form.addEventListener("submit", (event) => {
             if (index === -1) return char; // Skip characters not in the charset
             let newIndex = (index + shift) % mod;
             if (newIndex < 0) newIndex += mod;
-            return char === char.toLowerCase()
-                ? lowerCharset[newIndex]
-                : lowerCharset[newIndex].toUpperCase();
+            const newChar = lowerCharset[newIndex];
+            return char === char.toLowerCase() ? newChar : newChar.toUpperCase();
         }).join("");
     }
 
@@ -73,12 +95,16 @@ form.addEventListener("submit", (event) => {
         shiftValue,
         moduloValue,
         alphabetValue,
-        foreignCharsValue === 1
+        shouldRemoveForeignChars
     );
+
+    console.log("Cipher Output before case:", cipherOutput);
 
     // Apply letter casing if specified
     if (letterCaseValue === 2) cipherOutput = cipherOutput.toLowerCase();
     else if (letterCaseValue === 3) cipherOutput = cipherOutput.toUpperCase();
+
+    console.log("Final Cipher Output:", cipherOutput);
 
     // Display the output
     outputText.textContent = cipherOutput;
